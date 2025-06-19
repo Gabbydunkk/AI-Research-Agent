@@ -1,0 +1,381 @@
+{
+  "name": "AI RESERCH AGENT",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c8389176-db1b-42fe-887e-d139c0b3eb92",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nconst searchQueries = [\n  \"entry-level software engineer jobs in Lagos, Nigeria\",\n  \"Paystack hiring junior developer\",\n  \"Andela new engineering projects in Africa\",\n  \"Flutterwave software engineer roles\",\n  \"tech startups hiring in Nigeria\",\n  \"remote junior software developer jobs Nigeria\",\n  \"current software engineering internships Nigeria\",\n  \"junior machine learning engineer jobs Nigeria\",\n  \"AI research internships remote Africa\",\n  \"n8n automation specialist jobs remote\",\n  \"openAI agent developer freelance gigs\",\n  \"remote AI workflow automation jobs\",\n  \"entry-level NLP engineer Africa\",\n  \"machine learning jobs for junior developers Nigeria\",\n  \"tech companies using n8n in Africa\",\n  \"open junior Python developer roles Africa\",\n  \"freelance ML engineer jobs remote\",\n  \"LangChain agent developer opportunities\",\n  \"junior data scientist roles Nigeria\",\n  \"remote automation engineer with n8n experience\",\n  \"startups hiring ML engineers Africa\",\n  \"openAI tools integration roles Nigeria\",\n  \"open source contributions AI Nigeria\",\n  \"data annotation jobs for machine learning Nigeria\",\n  \"remote roles AI workflow builder Africa\"\n];\n\n// We format it into the structure n8n expects\nreturn searchQueries.map(query => ({\n  json: {\n    query: query\n  }\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "2a2ddb6d-2662-49ce-a89b-64bd9a0682fe",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// We have a list of search results, where each item has an 'organic' array.\n// This code flattens it into a single, long list of all organic results.\nconst allOrganicResults = [];\n\nfor (const item of items) {\n  if (item.json.organic) {\n    // We add the original search query to each result for context later\n    const organicResultsWithQuery = item.json.organic.map(result => {\n      return {\n        ...item.json, // This includes searchParameters, etc.\n        organic: result // This replaces the array with a single result object\n      };\n    });\n    allOrganicResults.push(...organicResultsWithQuery);\n  }\n}\n\nreturn allOrganicResults;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "4de390f8-61e9-44b9-b5b5-e451c294be39",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This code will intelligently filter our large list.\n// It groups all items by their original search query,\n// takes the top 3 from each group, and creates a new, smaller list.\n\nconst itemsByQuery = {};\n\n// 1. Group all incoming items by their search query\nfor (const item of items) {\n  // Use the 'q' property as the unique key for grouping\n  const query = item.json.searchParameters.q;\n  if (!itemsByQuery[query]) {\n    itemsByQuery[query] = [];\n  }\n  itemsByQuery[query].push(item);\n}\n\nconst finalTopResults = [];\n\n// 2. Loop through each group and take only the first 3 items\nfor (const query in itemsByQuery) {\n  const resultsForQuery = itemsByQuery[query];\n  const top3 = resultsForQuery.slice(0, 3); // The .slice(0, 3) command gets the top 3\n  finalTopResults.push(...top3); // Add the top 3 to our final list\n}\n\n// 3. Return the final, filtered list\nreturn finalTopResults;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "9164fcfb-e04f-4048-a46b-05ac51b4ef37",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1320,
+        0
+      ],
+      "id": "63e036ff-4114-4f8c-81a3-060a2646e98b",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "amount": 2
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        100
+      ],
+      "id": "0af75b89-fb8d-45db-8f70-912c165ab3ac",
+      "name": "Wait",
+      "webhookId": "30cebbcd-d05e-4f93-a6e9-ae3605599b5a"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This is our final, high-quality mock data set.\n// It contains the real text content the AI needs to create a briefing.\nreturn [\n    {\n        \"json\": {\n            \"text\": \"Paystack, a leading technology company in Lagos, Nigeria, has announced five new openings for their Junior Software Engineer program. The roles are open to recent graduates and developers with 1-2 years of experience. The company is specifically looking for skills in Node.js, React, and cloud services like AWS. According to their careers page, the company offers competitive salaries and a robust mentorship program. This initiative is part of Paystack's broader plan to invest in local tech talent and expand its engineering capabilities to support new product launches expected in the next quarter.\"\n        }\n    },\n    {\n        \"json\": {\n            \"text\": \"Andela, a global network for remote engineering talent, has published a new report on the state of AI in Africa. The report highlights a significant increase in demand for AI and Machine Learning skills across the continent. 'We are seeing a massive surge in companies looking to hire ML Engineers and Data Scientists in Nigeria, Kenya, and Egypt,' said a spokesperson. The report also notes that open-source contributions to AI projects from African developers have grown by 300% in the last year, signaling a vibrant and growing community of innovators ready to tackle global challenges.\"\n        }\n    }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1660,
+        -360
+      ],
+      "id": "11fb2eec-99b8-4a79-93c6-03a03e2c681a",
+      "name": "QUALITY CONTROL"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This is the final guard node. It inspects the data and only allows\n// items with a valid, usable URL to pass through.\n\nconst goodItems = [];\n\nfor (const item of items) {\n  const link = item.json.organic && item.json.organic.link;\n\n  // Check if the link exists, starts with http, AND DOES NOT include 'linkedin.com'\n  if (link && link.startsWith('http') && !link.includes('linkedin.com')) {\n    goodItems.push(item);\n  }\n}\n\nreturn goodItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ],
+      "id": "6ffd51a5-74e4-43e9-bbf6-7893607e8f92",
+      "name": "VALIDATE AND CLEAN CURLS"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an intelligence analyst. Review the following articles and job postings. Create a concise morning briefing for Gabriel. Summarize the key new job openings, mention any interesting tech news from the target companies, and highlight any potential opportunities. Format it as a clean, easy-to-read report. Here is the data:\n{{ $json.all_text }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2540,
+        -360
+      ],
+      "id": "d5f63347-0db8-4978-8220-2600a55b4cce",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash-latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        0
+      ],
+      "id": "ad39724e-64aa-4123-9881-1b0da241a71f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "muldXLite6ocPV8W",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://app.scrapingbee.com/api/v1/",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.organic.link }}"
+            },
+            {
+              "name": "render_js",
+              "value": "true"
+            },
+            {
+              "name": "extract_rules",
+              "value": "{\"text\": \"body\"}"
+            },
+            {
+              "name": "premium_proxy",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        -140
+      ],
+      "id": "a6f333c9-c3c9-44a2-8d96-6d293fbbf9e5",
+      "name": "SCRAPPING BEE",
+      "retryOnFail": true,
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "lkOziuhzIYVHsdhS",
+          "name": "ScrapingBee API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This node combines all the clean text into one large block for the AI.\nlet combinedText = \"\";\nlet counter = 1;\n\nfor (const item of items) {\n  // Get the scraped text from each item\n  const scrapedText = item.json.text;\n\n  // Add it to our combined block with clear separators\n  combinedText += `--- START OF SOURCE ${counter} ---\\n\\n`;\n  combinedText += `${scrapedText}\\n\\n`;\n  combinedText += `--- END OF SOURCE ${counter} ---\\n\\n\\n`;\n  counter++;\n}\n\n// Return a single item with all the text, ready for the AI\nreturn [{\n  json: {\n    all_text: combinedText\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1880,
+        -360
+      ],
+      "id": "3a884189-c456-4bee-818f-bdfd86fbd683",
+      "name": "AGGREGATE"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"q\": \"{{ $json.query }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "038160a6-1778-4125-964b-c60943af3186",
+      "name": "SERPER",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NuBN2q5HiRgYcfMq",
+          "name": "Serper API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "QUALITY CONTROL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "SERPER",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "VALIDATE AND CLEAN CURLS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "SCRAPPING BEE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "VALIDATE AND CLEAN CURLS": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "QUALITY CONTROL": {
+      "main": [
+        [
+          {
+            "node": "AGGREGATE",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SCRAPPING BEE": {
+      "main": [
+        []
+      ]
+    },
+    "AGGREGATE": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SERPER": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d9eaf59f-2f24-42a5-9823-a3206f2c9984",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "01ff9519183080c8ca11e2f53a26a9bb8d6db974040ea61b5433dbf5d783bedf"
+  },
+  "id": "YgwYrcwNZtFSvvhD",
+  "tags": []
+}
