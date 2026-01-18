@@ -3,9 +3,6 @@
 
 This isn't just a workflow; it's a complete, autonomous system for strategic career intelligence. Built with n8n, this agent automatically monitors the web for relevant job openings and tech news, scrapes the content, and uses the Google Gemini AI to deliver a concise, actionable intelligence briefing every morning.
 
-### Live Demonstration
-
-*(**Recommendation:** Create a short screen recording or GIF showing the final part of the workflow in action: the "Mock Data" node executing, followed by the "Aggregate Text" node, and finally the "Google Gemini" node producing the perfect briefing. Embed it here. A live demo is incredibly powerful.)*
 
 ---
 
